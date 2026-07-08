@@ -2,391 +2,227 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>معمل اختبار المكالمات — رواسخ</title>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>معمل المكالمات — اختبار مستقل</title>
+<!-- Agora RTC SDK -->
 <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.20.0.js"></script>
-
 <style>
-:root{
-  --bg:#0b1b16; --surface:#14261f; --surface-2:#1c332a; --border:#2a463a;
-  --text:#f2ead2; --text-dim:#9db4a9; --gold:#e0b34d; --success:#3fae6a; --danger:#e5484d;
-}
-*{box-sizing:border-box;}
-body{margin:0; background:var(--bg); color:var(--text); font-family:Cairo,system-ui,sans-serif; padding:16px; padding-bottom:40px;}
-h1{font-size:18px; margin:0 0 4px;}
-.sub{color:var(--text-dim); font-size:12.5px; margin-bottom:16px;}
-.card{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:14px;}
-input{width:100%; padding:12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); font-size:14px; margin-bottom:8px;}
-button{border:none; border-radius:10px; padding:11px 16px; font-size:14px; cursor:pointer;}
-.btn-primary{background:var(--gold); color:#1a1204; width:100%; font-weight:700;}
-.btn-secondary{background:var(--surface-2); color:var(--text); border:1px solid var(--border); width:100%;}
-.user-row{display:flex; align-items:center; justify-content:space-between; padding:10px 4px; border-bottom:1px solid var(--border); font-size:13.5px;}
-.user-row:last-child{border-bottom:none;}
-.user-row small{color:var(--text-dim); display:block; direction:ltr; text-align:left;}
-.call-btn-small{background:var(--success); color:#fff; padding:8px 14px; border-radius:20px; font-size:13px;}
-#toast{position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:#000; color:#fff; padding:10px 18px; border-radius:20px; font-size:13px; opacity:0; pointer-events:none; transition:opacity .3s; z-index:400;}
-#toast.show{opacity:.92;}
-
-.incoming-banner{position:fixed; top:14px; right:14px; left:14px; z-index:250; background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:14px; display:none; align-items:center; gap:12px; box-shadow:0 8px 24px rgba(0,0,0,.4);}
-.incoming-banner.active{display:flex;}
-.li-body{flex:1;}
-.li-body span{display:block; font-size:12px; color:var(--text-dim);}
-.call-btn{width:44px; height:44px; border-radius:50%; border:none; font-size:16px; color:#fff;}
-.call-btn.accept{background:var(--success);}
-.call-btn.reject,.call-btn.end{background:var(--danger);}
-
-.call-overlay{position:fixed; inset:0; z-index:300; background:linear-gradient(180deg,#07231a,#0e3626); display:none; flex-direction:column; align-items:center; justify-content:space-between; color:#f2ead2; padding:40px 24px; text-align:center;}
-.call-overlay.active{display:flex;}
-.call-status{font-size:14px; opacity:.75; display:flex; align-items:center; justify-content:center; gap:6px;}
-.call-conn-dot{width:8px; height:8px; border-radius:50%; background:var(--text-dim);}
-.call-conn-dot.good{background:var(--success);}
-.call-conn-dot.reconnecting{background:var(--gold); animation:blinkDot 1s infinite;}
-.call-conn-dot.bad{background:var(--danger);}
-@keyframes blinkDot{0%,100%{opacity:1;}50%{opacity:.3;}}
-.call-name{font-size:24px; margin:auto 0 4px;}
-.call-timer{font-size:15px; opacity:.85; direction:ltr;}
-.call-peer-muted{font-size:12.5px; opacity:.7; margin-top:4px;}
-.call-retry-btn{margin-top:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); border-radius:14px; padding:8px 18px; font-size:13.5px;}
-.call-actions{display:flex; gap:26px; align-items:center;}
-.call-btn.mute{width:64px; height:64px; background:rgba(255,255,255,.12); font-size:24px;}
-.call-btn.mute.active{background:var(--gold); color:#1a1204;}
-.call-btn.end{width:70px; height:70px; font-size:27px;}
-
-#log{background:#000; color:#7ee787; font-family:monospace; font-size:11.5px; direction:ltr; text-align:left; padding:10px; border-radius:10px; height:220px; overflow-y:auto; white-space:pre-wrap;}
-#log .err{color:#ff7b72;}
-#log .warn{color:#e0b34d;}
+  :root{
+    --bg:#0b1210; --surface:#111b18; --surface-2:#16221e; --border:#233530;
+    --text:#eaf3ef; --text-dim:#8fa39c; --gold:#d4a94f; --success:#3ecf8e; --danger:#e0554f;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:'Segoe UI',Tahoma,Arial,sans-serif; min-height:100vh; min-height:100dvh;}
+  .wrap{max-width:480px; margin:0 auto; padding:20px 16px 40px;}
+  h1{font-size:19px; margin:6px 0 2px; text-align:center;}
+  .sub{font-size:12.5px; color:var(--text-dim); text-align:center; margin-bottom:18px; line-height:1.7;}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:14px;}
+  label{display:block; font-size:12.5px; color:var(--text-dim); margin-bottom:6px;}
+  input{width:100%; background:var(--surface-2); border:1px solid var(--border); color:var(--text); border-radius:10px; padding:11px 12px; font-size:15px; margin-bottom:12px;}
+  input:focus{outline:none; border-color:var(--gold);}
+  button{cursor:pointer; border:none; font-size:14.5px; font-weight:600; border-radius:12px; padding:12px 16px; width:100%;}
+  .btn-primary{background:var(--gold); color:#1a1400;}
+  .btn-danger{background:var(--danger); color:#fff;}
+  .btn-secondary{background:var(--surface-2); color:var(--text); border:1px solid var(--border);}
+  .row{display:flex; gap:10px;}
+  .row button{flex:1;}
+  .status-line{display:flex; align-items:center; justify-content:center; gap:8px; font-size:13.5px; color:var(--text-dim); margin:4px 0 14px;}
+  .dot{width:9px; height:9px; border-radius:50%; background:var(--text-dim); flex-shrink:0;}
+  .dot.good{background:var(--success);}
+  .dot.bad{background:var(--danger);}
+  .dot.mid{background:var(--gold); animation:blink 1s infinite;}
+  @keyframes blink{50%{opacity:.3;}}
+  .timer{text-align:center; font-size:26px; direction:ltr; margin-bottom:14px; font-variant-numeric:tabular-nums;}
+  .peers{font-size:13px; color:var(--text-dim); text-align:center; margin-bottom:14px;}
+  .hidden{display:none !important;}
+  .mute-active{background:var(--gold) !important; color:#1a1400 !important;}
+  .log-box{background:#070c0a; border:1px solid var(--border); border-radius:12px; padding:10px; height:180px; overflow-y:auto; font-family:ui-monospace,Consolas,monospace; font-size:11.5px; direction:ltr; text-align:left; color:#9fd; line-height:1.6;}
+  .log-box .err{color:#ff8a80;}
+  .log-box .ok{color:#8affc1;}
+  .footer-note{font-size:11.5px; color:var(--text-dim); text-align:center; margin-top:10px; line-height:1.8;}
 </style>
 </head>
 <body>
+<div class="wrap">
+  <h1>📞 معمل المكالمات</h1>
+  <div class="sub">أداة اختبار مستقلة تمامًا — من غير تسجيل دخول، من غير حسابات، ومن غير أي ربط بقاعدة بيانات أي منصة.<br>اكتب اسمك ورقم الأوضة، وادخل نفس الرقم من جهاز تاني عشان تتصلوا.</div>
 
-<h1>🧪 معمل اختبار المكالمات (Agora)</h1>
-<div class="sub">نفس كود المكالمات بالظبط من منصة رواسخ — منقول هنا لوحده عشان نشوف ونصلح المشكلة من غير ما نلمس المنصة الأساسية.</div>
+  <div class="card" id="joinCard">
+    <label>اسمك</label>
+    <input id="nameInput" placeholder="مثلاً: محمود" maxlength="30">
+    <label>رقم الأوضة</label>
+    <input id="roomInput" placeholder="مثلاً: 123" maxlength="20" inputmode="numeric">
+    <button class="btn-primary" id="btnJoin">🎙️ ادخل الأوضة</button>
+  </div>
 
-<div class="card" id="loginCard">
-  <div style="font-weight:700; margin-bottom:10px;">تسجيل الدخول (بنفس حسابات المنصة)</div>
-  <input id="lu" placeholder="اسم المستخدم">
-  <input id="lp" placeholder="كلمة المرور" type="password">
-  <button class="btn-primary" onclick="doLogin()">دخول</button>
+  <div class="card hidden" id="callCard">
+    <div class="status-line"><span class="dot" id="connDot"></span><span id="statusText">جارِ الدخول...</span></div>
+    <div class="timer hidden" id="timerText">00:00</div>
+    <div class="peers" id="peersText">لسه محدش داخل معاك</div>
+    <div class="row" style="margin-bottom:10px">
+      <button class="btn-secondary" id="btnMute">🎙️ كتم</button>
+      <button class="btn-danger" id="btnLeave">☎ اقفل</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>سجل الأحداث (للتشخيص)</label>
+    <div class="log-box" id="logBox"></div>
+  </div>
+
+  <div class="footer-note">
+    الأداة دي بتستخدم Agora فقط لنقل الصوت، وبتستخدم سيرفر توكن عام (نفس السيرفر المستخدم في رواسخ لتوليد توكنات Agora) — من غير أي قراءة أو كتابة في قاعدة بيانات رواسخ.
+  </div>
 </div>
-
-<div class="card" id="appCard" style="display:none;">
-  <div style="font-weight:700; margin-bottom:6px;">أنا: <span id="meLabel"></span></div>
-  <div class="sub" style="margin-bottom:10px;">اختر مستخدم واتصل بيه لاختبار المكالمة:</div>
-  <div id="usersList">بيحمّل المستخدمين...</div>
-</div>
-
-<div class="card">
-  <div style="font-weight:700; margin-bottom:8px;">📋 سجل التشخيص (Debug Log)</div>
-  <div id="log"></div>
-  <button class="btn-secondary" style="margin-top:8px;" onclick="document.getElementById('log').innerHTML=''">تفريغ السجل</button>
-</div>
-
-<div class="incoming-banner" id="incomingBanner"></div>
-<div class="call-overlay" id="callOverlay"></div>
-<div id="toast"></div>
 
 <script>
-/* =====[ نفس إعدادات المنصة الأساسية بالظبط ]===== */
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyDtyoR3uh3Cb9jPy2nAvw2_4Ine6KVeeaw",
-  authDomain: "adminscriptstarko.firebaseapp.com",
-  databaseURL: "https://adminscriptstarko-default-rtdb.firebaseio.com",
-  projectId: "adminscriptstarko",
-  storageBucket: "adminscriptstarko.appspot.com",
-  messagingSenderId: "310036534754",
-  appId: "1:310036534754:android:ba27e270c322f0164e15bb"
-};
+/* =====[ إعدادات ]===== */
 const AGORA_APP_ID = "2687ea67475f48c8acaa8fa64b9fe843";
 const TOKEN_SERVER_URL = "https://mahmoudgamalghanim--898ce504785811f1af0e1607ee4eb77e.web.val.run";
 
-firebase.initializeApp(FIREBASE_CONFIG);
-const auth = firebase.auth();
-const db = firebase.database();
+const state = { client:null, localAudioTrack:null, joined:false, timerInt:null, seconds:0, remoteCount:0, myUid:null };
 
-let state = {
-  user:null, profile:null,
-  agoraClient:null, localAudioTrack:null, currentCallId:null, callTimerInt:null, callSeconds:0,
-  _callListeners:[], _activeCallSessionWatcher:null, _callPeerMutedWatcher:null
-};
-
-/* =====[ أدوات مساعدة (نفس الأصلية) ]===== */
-function $(sel,root=document){return root.querySelector(sel);}
-function esc(str){ if(str==null) return ''; return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function toast(msg, ms=2600){
-  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
-  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), ms);
-}
-function fmtDuration(sec){ const m=Math.floor(sec/60).toString().padStart(2,'0'); const s=(sec%60).toString().padStart(2,'0'); return `${m}:${s}`; }
-function pairId(a,b){ return [a,b].sort().join('_'); }
-function usernameToEmail(u){ return u.trim().toLowerCase().replace(/[^a-z0-9_.]/g,'') + '@rawasekh.app'; }
-
-/* لوج تشخيصي — ده الإضافة الوحيدة اللي مش موجودة في الأصلي، عشان نقدر نتابع كل خطوة */
-function log(msg, type=''){
-  const el = $('#log');
-  const time = new Date().toLocaleTimeString('ar-EG');
+function $(s){ return document.querySelector(s); }
+function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtDuration(s){ const m=String(Math.floor(s/60)).padStart(2,'0'); const ss=String(s%60).padStart(2,'0'); return m+':'+ss; }
+function log(msg, kind){
+  const box = $('#logBox');
   const line = document.createElement('div');
-  if(type) line.className = type;
-  line.textContent = `[${time}] ${msg}`;
-  el.appendChild(line);
-  el.scrollTop = el.scrollHeight;
-  if(type==='err') console.error(msg); else console.log(msg);
+  const t = new Date().toLocaleTimeString('en-GB');
+  line.className = kind || '';
+  line.textContent = `[${t}] ${msg}`;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
 }
+function setDot(cls){ $('#connDot').className = 'dot ' + cls; }
+function sanitizeRoom(v){ return String(v||'').trim().replace(/[^a-zA-Z0-9_-]/g,''); }
+function randomUid(){ return Math.floor(Math.random()*2147483000)+1; }
 
-/* =====[ تسجيل الدخول ]===== */
-async function doLogin(){
-  const uname = $('#lu').value.trim(), pass = $('#lp').value;
-  if(!uname || !pass){ toast('اكتب اسم المستخدم وكلمة المرور'); return; }
-  try{
-    log('محاولة تسجيل دخول: '+uname);
-    await auth.signInWithEmailAndPassword(usernameToEmail(uname), pass);
-  }catch(e){
-    log('فشل تسجيل الدخول: '+e.message, 'err');
-    toast('فشل الدخول: '+e.message);
-  }
-}
-auth.onAuthStateChanged(async user=>{
-  if(!user){ $('#loginCard').style.display='block'; $('#appCard').style.display='none'; return; }
-  state.user = user;
-  const snap = await db.ref('users/'+user.uid).get();
-  state.profile = snap.val() || {name:user.email, role:'?'};
-  log('تم تسجيل الدخول: uid='+user.uid+' name='+state.profile.name+' role='+state.profile.role);
-  $('#loginCard').style.display='none';
-  $('#appCard').style.display='block';
-  $('#meLabel').textContent = state.profile.name+' ('+state.profile.role+')';
-  loadUsersList();
-  listenIncomingCallsForMe();
-});
-
-async function loadUsersList(){
-  const snap = await db.ref('users').get();
-  const all = snap.val() || {};
-  const box = $('#usersList');
-  box.innerHTML = '';
-  Object.entries(all).forEach(([uid, u])=>{
-    if(uid === state.user.uid) return;
-    const row = document.createElement('div');
-    row.className = 'user-row';
-    row.innerHTML = `<div>${esc(u.name||'؟')}<small>${uid}</small></div>
-      <button class="call-btn-small" onclick="startCall('${uid}','${esc(u.name||'مستخدم')}')">📞 اتصال</button>`;
-    box.appendChild(row);
-  });
-  if(!box.children.length) box.textContent = 'مفيش مستخدمين تانيين في الداتابيز.';
-}
-
-/* =====[ منطق المكالمات — منسوخ بالظبط زي ما هو في index.html ]===== */
-function hashUidToNumber(uid){
-  let h = 0; for(let i=0;i<uid.length;i++){ h = (h*31 + uid.charCodeAt(i)) >>> 0; }
-  return (h % 2147483000) + 1;
-}
-
-async function startCall(otherUid, otherName){
-  if(state.currentCallId){ toast('انت بالفعل في مكالمة، أنهيها الأول'); return; }
-  const callId = pairId(state.user.uid, otherUid);
-  const channel = 'channel_'+callId;
-  log('startCall → callId='+callId+' channel='+channel);
-  try{
-    await db.ref('calls/'+callId).set({ from: state.user.uid, to: otherUid, status:'ringing', channel, ts: firebase.database.ServerValue.TIMESTAMP });
-  }catch(e){ log('فشل كتابة حالة المكالمة في Firebase: '+e.message,'err'); toast('تعذر بدء المكالمة'); return; }
-  openCallOverlay({uid:otherUid, name:otherName}, 'outgoing', callId, channel);
-  const callRef = db.ref('calls/'+callId);
-  const cb = snap=>{
-    const c = snap.val(); if(!c) return;
-    log('تحديث حالة المكالمة (كمتصل): '+c.status);
-    if(c.status==='rejected'){ toast(otherName+' رفض/ت المكالمة'); endCallUI(callId); }
-    if(c.status==='accepted'){ joinAgoraChannel(channel); }
-    if(c.status==='ended'){ endCallUI(callId); }
-  };
-  callRef.on('value', cb);
-  state._activeCallSessionWatcher = {callId, ref: callRef, cb};
-}
-
-let callPeerWatchRef = null;
-function teardownCallPeerWatch(){
-  if(callPeerWatchRef){ callPeerWatchRef.ref.off('value', callPeerWatchRef.cb); callPeerWatchRef=null; }
-}
-/* نسخة مبسطة للمعمل: بدل ما نتقيد بربط معلم/طالب، بنسمع لأي مكالمة موجهة لينا من أي حد
-   (في المنصة الأصلية الاستماع مقصور على المعلم/الطلاب المرتبطين بيه فقط) */
-function listenIncomingCallsForMe(){
-  teardownCallPeerWatch();
-  const myUid = state.user.uid;
-  const ref = db.ref('users');
-  const cb = snap=>{
-    const peers = Object.keys(snap.val()||{}).filter(u=>u!==myUid);
-    setupCallListenersForPeers(peers);
-  };
-  ref.once('value').then(cb);
-  callPeerWatchRef = {ref, cb:()=>{}};
-}
-
-function setupCallListenersForPeers(peers){
-  teardownCallListener();
-  const myUid = state.user.uid;
-  state._callListeners = state._callListeners || [];
-  log('بنراقب المكالمات الواردة من '+peers.length+' مستخدم');
-  peers.forEach(peerUid=>{
-    const callId = pairId(myUid, peerUid);
-    const ref = db.ref('calls/'+callId);
-    const cb = snap=>{
-      const c = snap.val(); if(!c) return;
-      if(c.to===myUid && c.status==='ringing'){
-        log('مكالمة واردة من: '+peerUid);
-        if(state.currentCallId && state.currentCallId!==callId){ ref.update({status:'rejected'}); return; }
-        showIncomingBanner(peerUid, callId, c.channel);
-      }
-      if(c.status==='ended' || c.status==='rejected'){
-        if(state.currentCallId===callId){ endCallUI(callId); }
-      }
-    };
-    ref.on('value', cb);
-    state._callListeners.push({ref, cb});
-  });
-}
-function teardownCallListener(){
-  (state._callListeners||[]).forEach(({ref,cb})=>ref.off('value',cb));
-  state._callListeners = [];
-}
-
-async function showIncomingBanner(fromUid, callId, channel){
-  const snap = await db.ref('users/'+fromUid).get();
-  const name = (snap.val()||{}).name || 'مكالمة واردة';
-  const banner = $('#incomingBanner');
-  banner.innerHTML = `
-    <div class="li-body"><b>${esc(name)}</b><span>مكالمة صوتية واردة...</span></div>
-    <button class="call-btn accept" id="btnAcceptIncoming">✓</button>
-    <button class="call-btn reject" id="btnRejectIncoming">✕</button>`;
-  banner.classList.add('active');
-  $('#btnAcceptIncoming').onclick = async ()=>{
-    const txResult = await db.ref('calls/'+callId+'/status').transaction(cur=> cur==='ringing' ? 'accepted' : cur);
-    if(!txResult.committed || txResult.snapshot.val()!=='accepted'){
-      log('المكالمة اتقفلت من الطرف التاني قبل القبول','warn');
-      toast('المكالمة اتقفلت من الطرف التاني'); hideIncomingBanner(); return;
-    }
-    hideIncomingBanner();
-    openCallOverlay({uid:fromUid, name}, 'incoming', callId, channel);
-    joinAgoraChannel(channel);
-  };
-  $('#btnRejectIncoming').onclick = async ()=>{
-    hideIncomingBanner();
-    await db.ref('calls/'+callId).update({status:'rejected'});
-  };
-}
-function hideIncomingBanner(){ $('#incomingBanner').classList.remove('active'); }
-
-function openCallOverlay(peer, mode, callId, channel){
-  state.currentCallId = callId;
-  const overlay = $('#callOverlay');
-  overlay.innerHTML = `
-    <div>
-      <div class="call-name">${esc(peer.name)}</div>
-      <div class="call-status"><span class="call-conn-dot" id="callConnDot"></span><span id="callStatusText">${mode==='outgoing'?'جارِ الاتصال...':'متصل'}</span></div>
-      <div class="call-timer" id="callTimerText" style="display:none">00:00</div>
-      <div class="call-peer-muted" id="callPeerMutedText" style="display:none">🔇 الطرف الآخر عامل كتم للميكروفون</div>
-    </div>
-    <div class="call-actions">
-      <button class="call-btn mute" id="btnMuteCall">🎙️</button>
-      <button class="call-btn end" id="btnEndCall">☎</button>
-    </div>`;
-  overlay.classList.add('active');
-  $('#btnEndCall').onclick = ()=>{ db.ref('calls/'+callId).update({status:'ended'}); endCallUI(callId); };
-  $('#btnMuteCall').onclick = (e)=>{
-    const btn = e.currentTarget; const muted = !btn.classList.contains('active');
-    btn.classList.toggle('active', muted);
-    if(state.localAudioTrack) state.localAudioTrack.setEnabled(!muted);
-    db.ref(`calls/${callId}/muted/${state.user.uid}`).set(muted);
-    log('كتم الميكروفون: '+muted);
-  };
-  const otherUid = peer.uid;
-  const peerMutedRef = db.ref(`calls/${callId}/muted/${otherUid}`);
-  const peerMutedCb = snap=>{ const el = $('#callPeerMutedText'); if(el) el.style.display = snap.val() ? 'block' : 'none'; };
-  peerMutedRef.on('value', peerMutedCb);
-  state._callPeerMutedWatcher = {ref: peerMutedRef, cb: peerMutedCb};
+function updatePeersText(){
+  const el = $('#peersText');
+  if(state.remoteCount<=0){ el.textContent = 'لسه محدش داخل معاك'; }
+  else { el.textContent = `عدد المتصلين معاك دلوقتي: ${state.remoteCount}`; }
 }
 
 async function fetchAgoraToken(channel, numericUid){
   const url = `${TOKEN_SERVER_URL}?channel=${encodeURIComponent(channel)}&uid=${numericUid}`;
-  log('بنجيب توكن من: '+url);
+  log(`طلب توكن من سيرفر التوكن للقناة: ${channel} / uid: ${numericUid}`);
   const resp = await fetch(url);
-  if(!resp.ok){ throw new Error('token-server-error (HTTP '+resp.status+')'); }
+  if(!resp.ok){ throw new Error('token-server-error: '+resp.status); }
   const data = await resp.json();
   if(!data.token){ throw new Error('no-token-in-response'); }
-  log('استلمنا التوكن بنجاح');
+  log('استلمت التوكن بنجاح ✔', 'ok');
   return data.token;
 }
 
-async function joinAgoraChannel(channel){
+async function joinRoom(){
+  const name = $('#nameInput').value.trim() || 'مستخدم';
+  const room = sanitizeRoom($('#roomInput').value);
+  if(!room){ alert('اكتب رقم الأوضة الأول'); return; }
+  const channel = 'room_' + room;
+  $('#btnJoin').disabled = true;
+
   try{
-    if(state.agoraClient){ try{ await state.agoraClient.leave(); }catch(_){} state.agoraClient=null; }
-    if(state.localAudioTrack){ try{ state.localAudioTrack.close(); }catch(_){} state.localAudioTrack=null; }
-    const numericUid = hashUidToNumber(state.user.uid);
-    log('numericUid المحسوب = '+numericUid);
-    const agoraToken = await fetchAgoraToken(channel, numericUid);
-    state.agoraClient = AgoraRTC.createClient({mode:'rtc', codec:'vp8'});
-    setCallConnDot('reconnecting');
-    state.agoraClient.on('connection-state-change', (curState, prevState, reason)=>{
-      log('connection-state-change: '+prevState+' → '+curState+' (سبب: '+reason+')');
-      const statusEl = $('#callStatusText');
-      if(curState==='CONNECTED'){ setCallConnDot('good'); if(statusEl && $('#callTimerText').style.display!=='none') statusEl.textContent=''; }
-      else if(curState==='RECONNECTING'){ setCallConnDot('reconnecting'); if(statusEl) statusEl.textContent='جارِ إعادة الاتصال...'; }
-      else if(curState==='DISCONNECTED' && reason!=='LEAVE'){ setCallConnDot('bad'); if(statusEl) statusEl.textContent='انقطع الاتصال'; }
+    state.myUid = randomUid();
+    log(`بدء الدخول — الاسم: ${name} / الأوضة: ${room} / القناة: ${channel}`);
+    const agoraToken = await fetchAgoraToken(channel, state.myUid);
+
+    state.client = AgoraRTC.createClient({mode:'rtc', codec:'vp8'});
+
+    state.client.on('connection-state-change', (curState, prevState, reason)=>{
+      log(`تغيّر حالة الاتصال: ${prevState} → ${curState} (${reason||'-'})`);
+      const statusEl = $('#statusText');
+      if(curState==='CONNECTED'){ setDot('good'); if(statusEl && !$('#timerText').classList.contains('hidden')) statusEl.textContent=''; }
+      else if(curState==='RECONNECTING'){ setDot('mid'); if(statusEl) statusEl.textContent='جارِ إعادة الاتصال...'; }
+      else if(curState==='DISCONNECTED' && reason!=='LEAVE'){ setDot('bad'); if(statusEl) statusEl.textContent='انقطع الاتصال'; }
     });
-    log('بندخل على قناة Agora: '+channel+' بـ AppID='+AGORA_APP_ID);
-    await state.agoraClient.join(AGORA_APP_ID, channel, agoraToken, numericUid);
-    log('تم الدخول على القناة بنجاح');
+
+    state.client.on('user-joined', (user)=>{
+      log(`✅ مستخدم دخل الأوضة (uid: ${user.uid})`, 'ok');
+    });
+
+    state.client.on('user-published', async (user, mediaType)=>{
+      log(`مستخدم (uid: ${user.uid}) بدأ يبعت ${mediaType}`);
+      await state.client.subscribe(user, mediaType);
+      if(mediaType==='audio'){ user.audioTrack.play(); log(`بشغل صوت المستخدم ${user.uid} ▶`, 'ok'); }
+    });
+
+    state.client.on('user-unpublished', (user, mediaType)=>{
+      log(`مستخدم (uid: ${user.uid}) وقف ${mediaType}`);
+    });
+
+    state.client.on('user-left', (user)=>{
+      log(`❌ مستخدم خرج من الأوضة (uid: ${user.uid})`, 'err');
+      state.remoteCount = Math.max(0, state.remoteCount-1);
+      updatePeersText();
+    });
+
+    setDot('mid');
+    $('#statusText').textContent = 'جارِ الدخول...';
+
+    await state.client.join(AGORA_APP_ID, channel, agoraToken, state.myUid);
+    log('دخلت القناة بنجاح ✔', 'ok');
+
     state.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-      AEC: true, ANS: true, AGC: true, encoderConfig: 'music_standard'
+      AEC:true, ANS:true, AGC:true, encoderConfig:'music_standard'
     });
-    log('تم فتح الميكروفون محليًا');
-    await state.agoraClient.publish([state.localAudioTrack]);
-    log('تم نشر الصوت (publish) على القناة');
-    state.agoraClient.on('user-published', async (user, mediaType)=>{
-      log('الطرف التاني نشر '+mediaType+' — uid='+user.uid);
-      await state.agoraClient.subscribe(user, mediaType);
-      log('اشتركنا في '+mediaType+' بتاع الطرف التاني');
-      if(mediaType==='audio') user.audioTrack.play();
-    });
-    state.agoraClient.on('user-unpublished', (user, mediaType)=>{ log('الطرف التاني وقف '+mediaType,'warn'); });
-    state.agoraClient.on('user-left', (user, reason)=>{ log('الطرف التاني خرج من القناة (سبب: '+reason+')','warn'); });
-    setCallConnDot('good');
-    $('#callStatusText').style.display='none';
-    $('#callTimerText').style.display='block';
-    state.callSeconds = 0;
-    state.callTimerInt = setInterval(()=>{ state.callSeconds++; const el=$('#callTimerText'); if(el) el.textContent=fmtDuration(state.callSeconds); }, 1000);
+    log('اتفعل الميكروفون (مع إلغاء صدى وتقليل ضوضاء) ✔', 'ok');
+    await state.client.publish([state.localAudioTrack]);
+    log('بدأت بث الصوت للأوضة ✔', 'ok');
+
+    // نحسب عدد المستخدمين الموجودين بالفعل وقت الدخول
+    state.remoteCount = state.client.remoteUsers.length;
+    updatePeersText();
+
+    setDot('good');
+    $('#statusText').style.display='none';
+    $('#timerText').classList.remove('hidden');
+    state.seconds = 0;
+    state.timerInt = setInterval(()=>{ state.seconds++; $('#timerText').textContent = fmtDuration(state.seconds); }, 1000);
+
+    state.joined = true;
+    $('#joinCard').classList.add('hidden');
+    $('#callCard').classList.remove('hidden');
+
   }catch(e){
-    log('❌ خطأ في الدخول على المكالمة: '+e.message+' — '+(e.stack||''), 'err');
-    setCallConnDot('bad');
-    const statusEl = $('#callStatusText');
-    if(statusEl){
-      statusEl.innerHTML = `تعذر الدخول على المكالمة <button class="call-retry-btn" id="btnRetryJoin">إعادة المحاولة</button>`;
-      $('#btnRetryJoin')?.addEventListener('click', ()=> joinAgoraChannel(channel));
-    }
-    toast('تعذر الدخول على المكالمة — شوف سجل التشخيص تحت');
+    console.error(e);
+    log('❌ حصل خطأ: ' + (e.message||e), 'err');
+    setDot('bad');
+    alert('تعذر الدخول على الأوضة — شوف سجل الأحداث تحت لمعرفة السبب بالظبط');
+    $('#btnJoin').disabled = false;
   }
-}
-function setCallConnDot(state_){
-  const dot = $('#callConnDot');
-  if(dot) dot.className = 'call-conn-dot ' + state_;
-}
-async function endCallUI(callId){
-  log('endCallUI → إنهاء المكالمة وتنظيف الموارد: '+callId);
-  hideIncomingBanner();
-  $('#callOverlay').classList.remove('active');
-  clearInterval(state.callTimerInt); state.callTimerInt=null;
-  if(state.localAudioTrack){ state.localAudioTrack.close(); state.localAudioTrack=null; }
-  if(state.agoraClient){ try{ await state.agoraClient.leave(); log('خرجنا من قناة Agora'); }catch(e){ log('خطأ عند الخروج من القناة: '+e.message,'err'); } state.agoraClient=null; }
-  if(state._callPeerMutedWatcher){ state._callPeerMutedWatcher.ref.off('value', state._callPeerMutedWatcher.cb); state._callPeerMutedWatcher=null; }
-  try{ db.ref(`calls/${callId}/muted/${state.user.uid}`).remove(); }catch(_){}
-  if(state._activeCallSessionWatcher && state._activeCallSessionWatcher.callId===callId){
-    state._activeCallSessionWatcher.ref.off('value', state._activeCallSessionWatcher.cb);
-    state._activeCallSessionWatcher = null;
-  }
-  state.currentCallId = null;
 }
 
-log('المعمل جاهز. سجّل دخولك بحساب من نفس المنصة عشان تبدأ الاختبار.');
+async function leaveRoom(){
+  log('بيقفل المكالمة ويسيب الأوضة...');
+  clearInterval(state.timerInt); state.timerInt = null;
+  if(state.localAudioTrack){ try{ state.localAudioTrack.close(); }catch(_){}; state.localAudioTrack=null; }
+  if(state.client){ try{ await state.client.leave(); log('خرجت من القناة ✔', 'ok'); }catch(e){ log('خطأ وقت الخروج: '+e.message, 'err'); } state.client=null; }
+  state.joined = false;
+  state.remoteCount = 0;
+  $('#callCard').classList.add('hidden');
+  $('#joinCard').classList.remove('hidden');
+  $('#btnJoin').disabled = false;
+  $('#statusText').style.display='block';
+  $('#statusText').textContent='جارِ الدخول...';
+  $('#timerText').classList.add('hidden');
+  $('#timerText').textContent='00:00';
+  const muteBtn = $('#btnMute');
+  muteBtn.classList.remove('mute-active'); muteBtn.textContent='🎙️ كتم';
+}
+
+$('#btnJoin').addEventListener('click', joinRoom);
+$('#btnLeave').addEventListener('click', leaveRoom);
+$('#btnMute').addEventListener('click', (e)=>{
+  const btn = e.currentTarget;
+  const muted = !btn.classList.contains('mute-active');
+  btn.classList.toggle('mute-active', muted);
+  btn.textContent = muted ? '🔇 مكتوم' : '🎙️ كتم';
+  if(state.localAudioTrack){ state.localAudioTrack.setEnabled(!muted); }
+  log(muted ? 'كتمت الميكروفون' : 'شغّلت الميكروفون');
+});
+
+log('الأداة جاهزة — اكتب اسمك ورقم الأوضة وادخل.');
 </script>
 </body>
 </html>
